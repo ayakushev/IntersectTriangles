@@ -18,6 +18,27 @@ int main() {
     vector< pair<Triangular, Triangular> > tests;
     vector< Triangular> answer;
 
+    {
+        const Triangular tr1(
+            Point(-3.0f, -4.0f), Point(-4.0f, 2.0f), Point(3.0f, 5.0f));
+        const Triangular tr2(
+            Point(-2.0f, -5.0f), Point(-2.0f, -1.0f), Point(4.0f, -1.0f));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+    }
+
+    {
+        const Triangular tr1(
+            Point(0.0f, -4.0f), Point(0.0f, 4.0f), Point(4.0f, 0.0f));
+        const Triangular tr2(
+            Point(6.0f, -4.0f), Point(2.0f, 0.0f), Point(6.0f, 4.0f));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+    }
 
     {
         const Triangular tr1(

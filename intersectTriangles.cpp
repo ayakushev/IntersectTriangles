@@ -2,7 +2,6 @@
 
 using namespace std;
 
-
 #include <cassert>
 #include <vector>
 
@@ -428,7 +427,17 @@ float distance_rough(Point * first, Point * second) {
 bool which_is_near(Point * base, Point * first, Point * second) {
     return distance_rough(base, first) < distance_rough(base, second) ? true : false;
 }
+ 
+void appen_to_result(const Point & p, vector<Point> & points) {
+    vector<Point>::const_iterator findIter = find(points.cbegin(), points.cend(), p);
+    if (findIter == points.cend())
+        points.push_back(p);
+}
 
+void appen_to_result_if_point_is_inside(const Point & p, vector<Point> & points) {
+    if (p.inside)
+        appen_to_result(p, points);
+}
 void append_part_points_to_result(Point * all_points, vector<Point> & points, Point * base) {
     // find near point to a
     int indx_first = -1, indx_second = -1;
@@ -448,38 +457,36 @@ void append_part_points_to_result(Point * all_points, vector<Point> & points, Po
         }
     }
 
-    vector<Point>::const_iterator findIter = find(points.cbegin(), points.cend(), all_points[indx_first]);
-    if (findIter == points.cend())
-        points.push_back(all_points[indx_first]);
+    appen_to_result(all_points[indx_first], points);
 
     if (indx_second>=0) {
-        vector<Point>::const_iterator findIter = find(points.cbegin(), points.cend(), all_points[indx_second]);
-        if (findIter == points.cend()) {
-            points.push_back(all_points[indx_second]);
-        }
+        appen_to_result(all_points[indx_second], points);
     }
 }
 
 
-bool Intersections::triangulate(const Triangular & t1, const Triangular & t2, std::vector<Triangular> & result){
+bool Intersections::triangulate(const Triangular & tr1, const Triangular & tr2, std::vector<Triangular> & result){
     result.clear();
 
-    if (!intersectByRect(t1, t2)) {
+    if (!intersectByRect(tr1, tr2)) {
         return false;
     }
+    Triangular t1 = tr1;
+    Triangular t2 = tr2;
+    t1.a.inside = t1.a.isInsideTriangual(t2);
+    t1.b.inside = t1.b.isInsideTriangual(t2);
+    t1.c.inside = t1.c.isInsideTriangual(t2);
+    t2.a.inside = t2.a.isInsideTriangual(t1);
+    t2.b.inside = t2.b.isInsideTriangual(t1);
+    t2.c.inside = t2.c.isInsideTriangual(t1);
 
-    bool a1 = t1.a.isInsideTriangual(t2);
-    bool b1 = t1.b.isInsideTriangual(t2);
-    bool c1 = t1.c.isInsideTriangual(t2);
-    if (a1 && b1 && c1) {
+
+    if (t1.a.inside && t1.b.inside && t1.c.inside) {
         result.push_back(t1);
         return true;
     }
-    else if (!a1 && !b1 && !c1) {
-        bool a2 = t2.a.isInsideTriangual(t1);
-        bool b2 = t2.b.isInsideTriangual(t1);
-        bool c2 = t2.c.isInsideTriangual(t1);
-        if (a2 && b2 && c2) {
+    else if (!t1.a.inside && !t1.b.inside && !t1.c.inside) {
+        if (t2.a.inside && t2.b.inside && t2.c.inside) {
             result.push_back(t2);
             return true;
         }
@@ -490,50 +497,93 @@ bool Intersections::triangulate(const Triangular & t1, const Triangular & t2, st
 
     Triangular first = t1.clockwised();
     Triangular second = t2.clockwised();
-     
+         
+//     auto intersectsPlus = [&](const Point & p, const Point & q, const Point & p1, const Point & q1, Point & res1, Point & res2) {
+//         if(intersects(p,q,p1,q1,res1,res2)){
+//             if(q1_is_inside) 
+//                 appen_to_result(q1, points);
+//             return true;
+//         }
+//         return false;
+//     };
+
     {
         Point all_points[6]; int i = 0; int n = 0;
+
+
         if (intersects(first.a, first.b, second.a, second.b, all_points[i++], all_points[i++]))
-            n++;
+            n=1;
         if (intersects(first.a, first.b, second.b, second.c, all_points[i++], all_points[i++]))
-            n++;
-        if (n < 2 && intersects(first.a, first.b, second.c, second.a, all_points[i++], all_points[i++]))
-            n++;
+            n |= 2;
+        if (n < 3 && intersects(first.a, first.b, second.c, second.a, all_points[i++], all_points[i++]))
+            n |= 4;
 
         if (n >= 1) {
+            appen_to_result_if_point_is_inside(first.a, points);
             append_part_points_to_result(all_points, points, &first.a);
+            if (n & 1)
+                appen_to_result_if_point_is_inside(second.b, points);
+            if (n & 2)
+                appen_to_result_if_point_is_inside(second.c, points);
+            if (n & 4)
+                appen_to_result_if_point_is_inside(second.a, points);
         }
+
     }
 
     {
         Point all_points[6]; int i = 0; int n = 0;
+
         if (intersects(first.b, first.c, second.a, second.b, all_points[i++], all_points[i++]))
-            n++;
+            n = 1;
         if (intersects(first.b, first.c, second.b, second.c, all_points[i++], all_points[i++]))
-            n++;
-        if (n < 2 && intersects(first.b, first.c, second.c, second.a, all_points[i++], all_points[i++]))
-            n++;
+            n |= 2;
+        if (n < 3 && intersects(first.b, first.c, second.c, second.a, all_points[i++], all_points[i++]))
+            n |= 4;
+
 
         if (n >= 1) {
+            appen_to_result_if_point_is_inside(first.b, points);
+
             append_part_points_to_result(all_points, points, &first.b);
+
+            if (n & 1)
+                appen_to_result_if_point_is_inside(second.b, points);
+            if (n & 2)
+                appen_to_result_if_point_is_inside(second.c, points);
+            if (n & 4)
+                appen_to_result_if_point_is_inside(second.a, points);
         }
     }
 
     {
         Point all_points[6]; int i = 0; int n = 0;
+
         if (intersects(first.c, first.a, second.a, second.b, all_points[i++], all_points[i++]))
-            n++;
+            n = 1;
         if (intersects(first.c, first.a, second.b, second.c, all_points[i++], all_points[i++]))
-            n++;
-        if (n < 2 && intersects(first.c, first.a, second.c, second.a, all_points[i++], all_points[i++]))
-            n++;
+            n |= 2;
+        if (n < 3 && intersects(first.c, first.a, second.c, second.a, all_points[i++], all_points[i++]))
+            n |= 4;
 
         if (n >= 1) {
+            appen_to_result_if_point_is_inside(first.c, points);
+
             append_part_points_to_result(all_points, points, &first.c);
+
+            if (n & 1)
+                appen_to_result_if_point_is_inside(second.b, points);
+            if (n & 2)
+                appen_to_result_if_point_is_inside(second.c, points);
+            if (n & 4)
+                appen_to_result_if_point_is_inside(second.a, points);
         }
     }
     //
-    if (points.size() < 3) {
+    if (points.size() == 0) {
+        return false;
+    }
+    else if (points.size() < 3) {
         return false;
     }
     else if (points.size() == 3) {

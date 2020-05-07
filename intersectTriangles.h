@@ -15,15 +15,18 @@ struct  Triangular;
 struct Point {
     float x;
     float y;
-    Point() :x(FLT_MAX), y(FLT_MAX) {}
-    Point(float x, float y) : x(x), y(y) {}
+    bool inside;
+    Point() :x(FLT_MAX), y(FLT_MAX), inside(false) {}
+    Point(float x, float y) : x(x), y(y), inside(false) {}
     Point(const Point & other) {
         x = other.x;
         y = other.y;
+        inside = other.inside;
     }
     Point & operator = (const Point & other) {
         x = other.x;
         y = other.y;
+        inside = other.inside;
         return *this;
     }
 
