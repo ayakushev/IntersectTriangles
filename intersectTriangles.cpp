@@ -419,6 +419,47 @@ bool Intersections::triangulate0(const Triangular & t1, const Triangular & t2, v
     
     return true;
 }
+float distance_rough(Point * first, Point * second) {
+   // return sqrt(pow(second->x - first->x, 2) + pow(second->y - first->y, 2));
+   return (second->x - first->x)*(second->x - first->x) + (second->y - first->y)*(second->y - first->y);
+}
+//(base->x - first->x)*(base->x - first->x) + (base->y - first->y)*(base->y - first->y)
+//(base->x - second->x)*(base->x - second->x) + (base->y - second->y)*(base->y - second->y)
+bool which_is_near(Point * base, Point * first, Point * second) {
+    return distance_rough(base, first) < distance_rough(base, second) ? true : false;
+}
+
+void append_part_points_to_result(Point * all_points, vector<Point> & points, Point * base) {
+    // find near point to a
+    int indx_first = -1, indx_second = -1;
+    for (int n = 0; n < 6; n++) {
+        if (!all_points[n].isEmpty()) {
+            if (indx_first < 0)
+                indx_first = n;
+            else if (!all_points[n].isEqual(all_points[indx_first])) {
+                indx_second = n;
+                break;
+            }
+        }
+    }
+    if (indx_second >= 0) {
+        if (which_is_near(base, &all_points[indx_second], &all_points[indx_first])) {
+            swap(all_points[indx_second], all_points[indx_first]);
+        }
+    }
+
+    vector<Point>::const_iterator findIter = find(points.cbegin(), points.cend(), all_points[indx_first]);
+    if (findIter == points.cend())
+        points.push_back(all_points[indx_first]);
+
+    if (indx_second>=0) {
+        vector<Point>::const_iterator findIter = find(points.cbegin(), points.cend(), all_points[indx_second]);
+        if (findIter == points.cend()) {
+            points.push_back(all_points[indx_second]);
+        }
+    }
+}
+
 
 bool Intersections::triangulate(const Triangular & t1, const Triangular & t2, std::vector<Triangular> & result){
     result.clear();
@@ -444,33 +485,53 @@ bool Intersections::triangulate(const Triangular & t1, const Triangular & t2, st
         }
     }
 
+    vector<Point> points;
+
+
     Triangular first = t1.clockwised();
     Triangular second = t2.clockwised();
+     
+    {
+        Point all_points[6]; int i = 0; int n = 0;
+        if (intersects(first.a, first.b, second.a, second.b, all_points[i++], all_points[i++]))
+            n++;
+        if (intersects(first.a, first.b, second.b, second.c, all_points[i++], all_points[i++]))
+            n++;
+        if (n < 2 && intersects(first.a, first.b, second.c, second.a, all_points[i++], all_points[i++]))
+            n++;
 
-    Point all_points[9 * 2]; int i = 0;
-    intersects(first.a, first.b, second.a, second.b, all_points[i++], all_points[i++]);
-    intersects(first.a, first.b, second.b, second.c, all_points[i++], all_points[i++]);
-    intersects(first.a, first.b, second.c, second.a, all_points[i++], all_points[i++]);
-
-    intersects(first.b, first.c, second.a, second.b, all_points[i++], all_points[i++]);
-    intersects(first.b, first.c, second.b, second.c, all_points[i++], all_points[i++]);
-    intersects(first.b, first.c, second.c, second.a, all_points[i++], all_points[i++]);
-
-    intersects(first.c, first.a, second.a, second.b, all_points[i++], all_points[i++]);
-    intersects(first.c, first.a, second.b, second.c, all_points[i++], all_points[i++]);
-    intersects(first.c, first.a, second.c, second.a, all_points[i++], all_points[i++]);
-
-    vector<Point> points;
-    int cnt = sizeof(all_points) / sizeof(all_points[0]);
-    for (i=0; i<cnt; i++) {
-        if(all_points[i].isEmpty())
-            continue;
-        vector<Point>::const_iterator findIter = find(points.cbegin(), points.cend(), all_points[i]);
-        if (findIter == points.cend()) {
-            points.push_back(all_points[i]);
+        if (n >= 1) {
+            append_part_points_to_result(all_points, points, &first.a);
         }
     }
 
+    {
+        Point all_points[6]; int i = 0; int n = 0;
+        if (intersects(first.b, first.c, second.a, second.b, all_points[i++], all_points[i++]))
+            n++;
+        if (intersects(first.b, first.c, second.b, second.c, all_points[i++], all_points[i++]))
+            n++;
+        if (n < 2 && intersects(first.b, first.c, second.c, second.a, all_points[i++], all_points[i++]))
+            n++;
+
+        if (n >= 1) {
+            append_part_points_to_result(all_points, points, &first.b);
+        }
+    }
+
+    {
+        Point all_points[6]; int i = 0; int n = 0;
+        if (intersects(first.c, first.a, second.a, second.b, all_points[i++], all_points[i++]))
+            n++;
+        if (intersects(first.c, first.a, second.b, second.c, all_points[i++], all_points[i++]))
+            n++;
+        if (n < 2 && intersects(first.c, first.a, second.c, second.a, all_points[i++], all_points[i++]))
+            n++;
+
+        if (n >= 1) {
+            append_part_points_to_result(all_points, points, &first.c);
+        }
+    }
     //
     if (points.size() < 3) {
         return false;

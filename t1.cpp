@@ -18,6 +18,19 @@ int main() {
     vector< pair<Triangular, Triangular> > tests;
     vector< Triangular> answer;
 
+
+    {
+        const Triangular tr1(
+            Point(-2.0f, -5.0f), Point(-2.0f, -1.0f), Point(4.0f, -1.0f));
+        const Triangular tr2(
+            Point(-3.0f, -4.0f), Point(1.0f, 1.0f), Point(4.0f, -2.0f));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+
+    }
+
     // 1 
     tests.push_back( pair<Triangular, Triangular>(
         Triangular(Point(0,0),Point(0,10),Point(10,10)), 
@@ -107,10 +120,10 @@ int main() {
     {
         for (int n = 0; n < 1000; n++)
             for (unsigned i = 0; i < tests.size(); i++) {
-                vector<Triangular> result;
                 Intersections tool;
-                if (tool.triangulate(tests[i].first, tests[i].second, result)) {
-                    assert(result[0].isEqual(answer.at(i)));
+                vector<Triangular> result_1;
+                if ( tool.triangulate(tests[i].first, tests[i].second, result_1) ) {
+                    assert(result_1[0].isEqual(answer.at(i)));
                 }
                 else {
                     if (!answer.at(i).isNull())
