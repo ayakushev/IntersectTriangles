@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <list>
+#include <deque>
 #include <vector>
 
 #define EPS 0.00001
@@ -168,8 +168,5 @@ private:
     bool intersects(Point p1, Point q1, Point p2, Point q2, Point & p3, Point & q3);
     bool intersectByRect(const Triangular & first, const Triangular & second);
 
-    // slowly methods by vector
-    bool intersects0(Point p1, Point q1, Point p2, Point q2, std::vector<Point> & intersects);
-    bool triangulate0(const Triangular & t1, const Triangular & t2, std::vector<Triangular> & result);
 };
 
