@@ -230,11 +230,6 @@ void appen_to_result(const Point & p, vector<Point> & points) {
     vector<Point>::const_iterator findIter = find(points.cbegin(), points.cend(), p);
     if (findIter == points.cend()) {
         points.push_back(p);
-//         if (points.size() > 2) {
-//             if (orientation(points[points.size() - 3], points[points.size() - 2], points[points.size() - 1])) {
-//                 swap(points[points.size() - 3], points[points.size() - 1]);
-//             }
-//         }
     }
 }
 
@@ -318,15 +313,15 @@ bool Intersections::triangulate(const Triangular & tr1, const Triangular & tr2, 
     auto intersectsPlus = [&](const Point & p, const Point & q, const Point & a, const Point & b, const Point & c) {
         Point all_points[6]; int i = 0; int n = 0;
         
-        if (intersects(p, q, a, b, all_points[i++], all_points[i++])) {
+        if (intersects(p, q, a, b, all_points[i], all_points[i+1])) {
             appen_to_result_if_point_is_inside(a, points);
             n = 1;
         }
-        if (intersects(p, q, b, c, all_points[i++], all_points[i++])) {
+        if (intersects(p, q, b, c, all_points[i+2], all_points[i+3])) {
             appen_to_result_if_point_is_inside(b, points);
             n |= 2;
         }
-        if (n < 3 && intersects(p, q, c, a, all_points[i++], all_points[i++])) {
+        if (n < 3 && intersects(p, q, c, a, all_points[i+4], all_points[i+5])) {
             appen_to_result_if_point_is_inside(c, points);
             n |= 4;
         }

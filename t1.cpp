@@ -81,6 +81,16 @@ int main() {
         tool.triangulate(tr1, tr2, result);
     }
 
+    {
+        const Triangular tr1(Point(0, 0), Point(100, 100), Point(100, 0));
+        const Triangular tr2(Point(50, 50), Point(60, 50), Point(50, 40));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+    }
+
+
     // 1 
     tests.push_back( pair<Triangular, Triangular>(
         Triangular(Point(0,0),Point(0,10),Point(10,10)), 
