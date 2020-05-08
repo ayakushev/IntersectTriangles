@@ -55,13 +55,31 @@ int main() {
 
     {
         const Triangular tr1(Point(0, 0), Point(100, 100), Point(100, 0));
-        const Triangular tr2(Point(80, 20), Point(20, 20), Point(50, -10));
+        const Triangular tr2(Point(80, 20), Point(50, 20), Point(50, -10));
 
         vector<Triangular> result;
         Intersections tool;
         tool.triangulate(tr1, tr2, result);
     }
 
+    {
+        const Triangular tr1(Point(0, 0), Point(100, 100), Point(100, 0));
+        const Triangular tr2(Point(80, 50), Point(120, 50), Point(80, 30));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+    }
+
+
+    {
+        const Triangular tr1(Point(0, 0), Point(100, 100), Point(100, 0));
+        const Triangular tr2(Point(80, 30), Point(80, 50), Point(120, 50));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+    }
 
     // 1 
     tests.push_back( pair<Triangular, Triangular>(
