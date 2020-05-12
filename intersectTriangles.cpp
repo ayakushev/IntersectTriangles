@@ -16,7 +16,7 @@ using namespace std;
 int orientation(const Point & p, const Point & q, const Point & r) {
     // for details of below formula. 
     float val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-    if (abs(val) < EPS) 
+    if (isAlmostZero(val))
         return 0;  // colinear 
     return (val > 0.) ? -1 : +1; //1 : 2; // clock or counterclock wise
 }
@@ -129,7 +129,7 @@ bool Intersections::intersects(Point p1, Point q1, Point p2, Point q2, Point & p
             return false;
 
         // Segment #1 is a vertical line.
-        if (abs(p1.x - q1.x) < EPS) {
+        if (isAlmostZero(p1.x - q1.x)) {
             float m = (q2.y - p2.y) / (q2.x - p2.x);
             float b = p2.y - m * p2.x;
             q3 = Point(p1.x, m * p1.x + b);
@@ -137,7 +137,7 @@ bool Intersections::intersects(Point p1, Point q1, Point p2, Point q2, Point & p
         }
 
         // Segment #2 is a vertical line.
-        if (abs(p2.x - q2.x) < EPS) {
+        if (isAlmostZero(p2.x - q2.x)) {
             float m = (q1.y - p1.y) / (q1.x - p1.x);
             float b = p1.y - m * p1.x;
             q3 = Point(p2.x, m * p2.x + b);
@@ -326,8 +326,9 @@ bool Intersections::triangulate(const Triangular & tr1, const Triangular & tr2, 
             n |= 4;
         }
 
+            
+        appen_to_result_if_point_is_inside(p, points);
         if (n >= 1) {
-            appen_to_result_if_point_is_inside(p, points);
             append_part_points_to_result(all_points, points, (Point*)&p);
         
             if (n & 1)

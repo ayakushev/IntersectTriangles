@@ -38,7 +38,7 @@ struct Point {
         return x == FLT_MAX && y == FLT_MAX;
     }
     bool isEqual( const Point & other) const {
-        return abs(x - other.x) < EPS && abs(y - other.y) < EPS;
+        return isAlmostZero(x - other.x) && isAlmostZero(y - other.y);
     }
 
     bool isInsideTriangual(const Triangular & t) const;
@@ -66,7 +66,7 @@ struct Point {
     }
 
     static double area(const Point & a, const Point & b, const Point & c) {
-        return abs((a.x*(b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2.0);
+        return fabs((a.x*(b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2.0);
     }
 
 };

@@ -20,9 +20,31 @@ int main() {
 
     {
         const Triangular tr1(
-            Point(-3.0f, -4.0f), Point(-4.0f, 2.0f), Point(3.0f, 5.0f));
+            Point(-90.0f, -50.0f), Point(-90.0f, 70.0f), Point(90.0f, 70.0f));
         const Triangular tr2(
-            Point(-2.0f, -5.0f), Point(-2.0f, -1.0f), Point(4.0f, -1.0f));
+            Point(0.0f, 100.0f), Point(-100.0f, -100.0f), Point(-100.0f, 100.0f));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+    }
+
+    {
+        const Triangular tr1(
+            Point(-90.0f, -50.0f), Point(90.0f, 70.0f), Point(90.0f, -50.0f));
+        const Triangular tr2(
+            Point(0.0f, 100.0f), Point(100.0f, -100.0f), Point(100.0f, 100.0f));
+
+        vector<Triangular> result;
+        Intersections tool;
+        tool.triangulate(tr1, tr2, result);
+    }
+
+    {
+        const Triangular tr1(
+            Point(-90.0f, -50.0f), Point(90.0f, 70.0f), Point(90.0f, -50.0f));
+        const Triangular tr2(
+            Point(0.0f, 100.0f), Point(-100.0f, -100.0f), Point(-100.0f, 100.0f));
 
         vector<Triangular> result;
         Intersections tool;
